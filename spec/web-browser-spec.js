@@ -1,5 +1,6 @@
 const http = require("http");
 const path = require("path");
+const { ipcRenderer } = require("electron");
 const { pathToFileURL } = require("url");
 const { WebBrowserItem } = require("../lib/browser-item");
 const WebBrowserView = require("../lib/browser-view");
@@ -26,6 +27,13 @@ describe("web-browser", () => {
         response.setHeader("content-type", "text/html");
         response.end(
           `<title>${hasCookie ? "Cookie Shared" : "Cookie Missing"}</title><p>cookie</p>`,
+        );
+        return;
+      }
+      if (request.url === "/keys") {
+        response.setHeader("content-type", "text/html");
+        response.end(
+          "<title>Keyboard Fixture</title><script>document.addEventListener('keydown', event => event.stopPropagation())</script>",
         );
         return;
       }
@@ -114,6 +122,7 @@ describe("web-browser", () => {
       },
     };
     const view = new WebBrowserView(item);
+    jasmine.attachToDOM(view.element);
     await conditionPromise(() => surface.attach.calls.any(), "adopted popup attach");
 
     expect(surface.loadURL).not.toHaveBeenCalled();
@@ -124,15 +133,33 @@ describe("web-browser", () => {
     expect(view.addressEditorElement.matches("lumine-text-editor[mini].web-browser-address")).toBe(
       true,
     );
+    expect(view.element.classList.contains("native-key-bindings")).toBe(false);
+    expect(view.nativeHost.classList.contains("native-key-bindings")).toBe(false);
     expect(addressEditor.getPlaceholderText()).toBe("Search or enter address");
     expect(lumine.textEditors.roleFor(addressEditor)).toBe("input");
     const pickerRow = document.createElement("button");
     const picked = jasmine.createSpy("picked");
     view.pickerEntries = [{ row: pickerRow, run: picked }];
     view.picker.hidden = false;
-    lumine.commands.dispatch(view.addressEditorElement, "core:move-down");
+    const addressInput =
+      view.addressEditorElement.querySelector(".hidden-input") || view.addressEditorElement;
+    addressInput.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "ArrowDown",
+        code: "ArrowDown",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
     expect(view.pickerIndex).toBe(0);
-    lumine.commands.dispatch(view.addressEditorElement, "core:confirm");
+    addressInput.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        code: "Enter",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
     expect(picked).toHaveBeenCalled();
     addressEditor.setText("https://typed.example/");
     view.focusAddress();
@@ -307,6 +334,33 @@ describe("web-browser", () => {
     expect(commands.some(({ name }) => name === "web-browser:toggle-focus")).toBe(true);
   });
 
+  it("navigates when Enter is pressed in the mini address editor", async () => {
+    jasmine.useRealClock();
+    jasmine.attachToDOM(lumine.views.getView(lumine.workspace));
+    const item = await service.open();
+    await conditionPromise(() => item.view?.addressEditor, "mini address editor");
+    item.view.addressEditor.setText(`${origin}/`);
+    item.view.addressEditorElement.focus();
+    const addressInput =
+      item.view.addressEditorElement.querySelector(".hidden-input") ||
+      item.view.addressEditorElement;
+    addressInput.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        code: "Enter",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+
+    await conditionPromise(
+      () => item.lastSurfaceState.title === "Browser Fixture",
+      "address-bar navigation",
+      8000,
+    );
+    expect(item.lastSurfaceState.url).toBe(`${origin}/`);
+  });
+
   it("loads a real page in WebContentsView and shares its global session", async () => {
     jasmine.useRealClock();
     jasmine.attachToDOM(lumine.views.getView(lumine.workspace));
@@ -330,6 +384,69 @@ describe("web-browser", () => {
       8000,
     );
     expect(second.lastSurfaceState.error).toBeNull();
+  });
+
+  it("forwards workspace shortcuts from a real WebContentsView", async () => {
+    jasmine.useRealClock();
+    const workspaceElement = lumine.views.getView(lumine.workspace);
+    jasmine.attachToDOM(workspaceElement);
+    const forwardedWorkspace = jasmine.createSpy("forwarded workspace shortcut");
+    const forwardedPalette = jasmine.createSpy("forwarded palette shortcut");
+    const forwardedBrowser = jasmine.createSpy("forwarded browser shortcut");
+    const forwardedLate = jasmine.createSpy("forwarded late shortcut");
+    const commands = lumine.commands.add(workspaceElement, {
+      "web-browser-spec:workspace-shortcut": forwardedWorkspace,
+      "web-browser-spec:palette-shortcut": forwardedPalette,
+      "web-browser-spec:browser-shortcut": forwardedBrowser,
+      "web-browser-spec:late-shortcut": forwardedLate,
+    });
+    let lateKeymaps = null;
+    const keymaps = lumine.keymaps.add("web-browser-workspace-shortcut-spec", {
+      "lumine-workspace": {
+        f1: "web-browser-spec:workspace-shortcut",
+        "cmdorctrl-shift-p": "web-browser-spec:palette-shortcut",
+      },
+      ".web-browser": { "cmdorctrl-f": "web-browser-spec:browser-shortcut" },
+    });
+
+    try {
+      const item = await service.open(`${origin}/keys`);
+      await conditionPromise(
+        () => item.lastSurfaceState.title === "Keyboard Fixture",
+        "keyboard fixture navigation",
+        8000,
+      );
+      await lumine.window.focus();
+      await conditionPromise(() => document.hasFocus(), "spec window focus");
+      await item.focus();
+      const sendKey = async (keyCode, modifiers = []) => {
+        const inputTarget = await ipcRenderer.invoke("lumine:window", "sendInputEvent", {
+          type: "keyDown",
+          keyCode,
+          modifiers,
+        });
+        expect(inputTarget).toBe("web-contents-view");
+      };
+      const commandModifier = process.platform === "darwin" ? "meta" : "control";
+
+      await sendKey("F1");
+      await conditionPromise(() => forwardedWorkspace.calls.any(), "forwarded workspace shortcut");
+      await sendKey("P", [commandModifier, "shift"]);
+      await conditionPromise(() => forwardedPalette.calls.any(), "forwarded palette shortcut");
+      await sendKey("F", [commandModifier]);
+      await conditionPromise(() => forwardedBrowser.calls.any(), "forwarded browser shortcut");
+
+      lateKeymaps = lumine.keymaps.add("web-browser-late-shortcut-spec", {
+        "lumine-workspace": { f2: "web-browser-spec:late-shortcut" },
+      });
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      await sendKey("F2");
+      await conditionPromise(() => forwardedLate.calls.any(), "forwarded late shortcut");
+    } finally {
+      lateKeymaps?.dispose();
+      keymaps.dispose();
+      commands.dispose();
+    }
   });
 
   it("applies real touch and coarse-pointer emulation", async () => {

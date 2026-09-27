@@ -29,6 +29,7 @@ describe("web-browser package assets", () => {
     const address = keymap[".web-browser-address-box lumine-text-editor[mini]"];
     expect(address.escape).toBe("core:cancel");
     expect(address["cmdorctrl-d"]).toBe("web-browser:toggle-favorite");
+    expect(keymap[".web-browser button"].enter).toBe("native!");
   });
 
   it("does not contribute a title-bar item or setting", () => {

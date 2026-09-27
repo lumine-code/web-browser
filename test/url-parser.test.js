@@ -12,6 +12,10 @@ const { fileURLToPath } = require("url");
 
 test("normalizes hosts, localhost and searches", () => {
   assert.equal(parseAddressInput("example.com").url, "https://example.com/");
+  assert.equal(
+    parseAddressInput("https://github.com/tree-sitter/node-tree-sitter").url,
+    "https://github.com/tree-sitter/node-tree-sitter",
+  );
   assert.equal(parseAddressInput("localhost:3000/path").url, "http://localhost:3000/path");
   assert.equal(parseAddressInput("::1").url, "http://[::1]/");
   assert.equal(parseAddressInput("2001:db8::1").url, "https://[2001:db8::1]/");
