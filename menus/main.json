@@ -1,0 +1,72 @@
+{
+  "menu": [
+    {
+      "label": "View",
+      "submenu": [{ "label": "Web Browser", "command": "web-browser:toggle-focus" }]
+    },
+    {
+      "label": "Packages",
+      "submenu": [
+        {
+          "label": "Web Browser",
+          "submenu": [
+            { "label": "New Tab", "command": "web-browser:new-tab" },
+            { "label": "Quick Open…", "command": "web-browser:quick-open" },
+            { "type": "separator" },
+            {
+              "label": "Navigation",
+              "submenu": [
+                { "label": "Back", "command": "web-browser:back" },
+                { "label": "Forward", "command": "web-browser:forward" },
+                { "label": "Reload", "command": "web-browser:reload" },
+                { "label": "Reload Without Cache", "command": "web-browser:reload-ignoring-cache" },
+                { "label": "Stop", "command": "web-browser:stop" }
+              ]
+            },
+            {
+              "label": "Page",
+              "submenu": [
+                { "label": "Find…", "command": "web-browser:find" },
+                { "label": "Add or Remove Favorite", "command": "web-browser:toggle-favorite" },
+                { "label": "Open Externally", "command": "web-browser:open-external" },
+                { "label": "Print…", "command": "web-browser:print" },
+                { "label": "Zoom In", "command": "web-browser:zoom-in" },
+                { "label": "Zoom Out", "command": "web-browser:zoom-out" },
+                { "label": "Reset Zoom", "command": "web-browser:zoom-reset" }
+              ]
+            },
+            {
+              "label": "Developer",
+              "submenu": [
+                { "label": "Toggle Responsive Mode", "command": "web-browser:toggle-responsive" },
+                { "label": "Open DevTools", "command": "web-browser:open-devtools" }
+              ]
+            },
+            {
+              "label": "Data",
+              "submenu": [
+                { "label": "History…", "command": "web-browser:show-history" },
+                { "label": "Site Permissions…", "command": "web-browser:show-site-permissions" }
+              ]
+            },
+            { "type": "separator" },
+            { "label": "Clear Browsing Data…", "command": "web-browser:clear-browsing-data" },
+            { "label": "Close All Tabs", "command": "web-browser:close-all" }
+          ]
+        }
+      ]
+    }
+  ],
+  "context-menu": {
+    ".tree-view .file": [
+      { "type": "separator" },
+      { "label": "Open in Web Browser", "command": "web-browser:open-file" },
+      { "type": "separator" }
+    ],
+    "lumine-text-editor:not([mini])": [
+      { "type": "separator" },
+      { "label": "Open in Web Browser", "command": "web-browser:open-file" },
+      { "type": "separator" }
+    ]
+  }
+}

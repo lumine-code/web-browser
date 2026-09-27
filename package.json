@@ -1,0 +1,152 @@
+{
+  "name": "web-browser",
+  "author": "lumine-code",
+  "description": "Browse the web without leaving the editor.",
+  "repository": "https://github.com/lumine-code/web-browser",
+  "bugs": {
+    "url": "https://github.com/lumine-code/web-browser/issues"
+  },
+  "homepage": "https://github.com/lumine-code/web-browser#readme",
+  "keywords": [
+    "chromium",
+    "devtools",
+    "navigation",
+    "internet",
+    "http",
+    "https",
+    "downloads",
+    "preview"
+  ],
+  "version": "1.0.0",
+  "license": "MIT",
+  "engines": {
+    "lumine": "^1.0.0"
+  },
+  "main": "./lib/main",
+  "uriHandler": {
+    "method": "handleURI"
+  },
+  "files": [
+    "docs",
+    "keymaps",
+    "lib",
+    "menus",
+    "spec",
+    "styles"
+  ],
+  "scripts": {
+    "test": "lumine --test spec",
+    "test:unit": "node --test \"test/*.test.js\"",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "deserializers": {
+    "WebBrowserItem": "deserialize"
+  },
+  "providedServices": {
+    "web-browser": {
+      "versions": {
+        "1.0.0": "provideWebBrowser"
+      }
+    },
+    "background-tips.provider": {
+      "versions": {
+        "1.0.0": "provideBackgroundTips"
+      }
+    }
+  },
+  "consumedServices": {
+    "title-bar": {
+      "versions": {
+        "^1.0.0": "consumeTitleBar"
+      }
+    },
+    "tree-view.selection": {
+      "versions": {
+        "^1.0.0": "consumeTreeViewSelection"
+      }
+    }
+  },
+  "configSchema": {
+    "dataStorage": {
+      "title": "Browsing Data Storage",
+      "description": "Choose where cookies, cache, history, and site permissions are stored.",
+      "type": "string",
+      "enum": [
+        "default",
+        "global",
+        "workspace",
+        "ephemeral"
+      ],
+      "default": "default"
+    },
+    "searchEngine": {
+      "title": "Search Engine",
+      "description": "Search engine used when address input is not a URL.",
+      "type": "string",
+      "enum": [
+        "duckduckgo",
+        "google",
+        "bing",
+        "yahoo",
+        "none"
+      ],
+      "default": "duckduckgo"
+    },
+    "newTabPlacement": {
+      "title": "New Tab Placement",
+      "type": "string",
+      "enum": [
+        "active-pane",
+        "side-pane",
+        "window"
+      ],
+      "default": "active-pane"
+    },
+    "openLocalhostLinks": {
+      "title": "Open Local Links in Web Browser",
+      "description": "Open localhost and all-interfaces HTTP links inside the editor.",
+      "type": "boolean",
+      "default": false
+    },
+    "pageZoom": {
+      "title": "Default Page Zoom",
+      "type": "number",
+      "minimum": 0.25,
+      "maximum": 5,
+      "default": 1
+    },
+    "maxHistoryEntries": {
+      "title": "Maximum History Entries",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000,
+      "default": 200
+    },
+    "autoReloadOnFileChange": {
+      "title": "Auto-reload Local Files",
+      "description": "Reload an open local web document after its file changes.",
+      "type": "boolean",
+      "default": true
+    },
+    "showInTitleBar": {
+      "title": "Title Bar Button",
+      "type": "string",
+      "enum": [
+        "always",
+        "when-open",
+        "never"
+      ],
+      "default": "when-open"
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-n": "^18.3.0",
+    "globals": "^17.11.0",
+    "prettier": "^3.9.6"
+  }
+}
