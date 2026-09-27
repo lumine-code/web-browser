@@ -23,10 +23,27 @@ describe("web-browser package assets", () => {
     }
   });
 
+  it("owns Alt+W as its reveal-tier binding", () => {
+    const keymap = require(path.join(root, "keymaps", "main.json"));
+    expect(keymap["lumine-workspace"]["alt-w"]).toBe("web-browser:toggle-focus");
+  });
+
   it("does not waste keywords already present in the package name", () => {
     expect(manifest.keywords).not.toContain("web");
     expect(manifest.keywords).not.toContain("browser");
     expect(manifest.keywords.length).toBeGreaterThanOrEqual(3);
     expect(manifest.keywords.length).toBeLessThanOrEqual(8);
+  });
+
+  it("passes touch emulation to the native surface", () => {
+    const view = fs.readFileSync(path.join(root, "lib", "browser-view.js"), "utf8");
+    expect(view).toContain("electronOptions.touch = normalized.touch");
+    expect(view).not.toMatch(/const \{ scale: _scale, touch,/);
+  });
+
+  it("uses theme variables instead of fixed colors", () => {
+    const styles = fs.readFileSync(path.join(root, "styles", "main.css"), "utf8");
+    expect(styles).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(/i);
+    expect(styles).toContain("var(--text-color)");
   });
 });

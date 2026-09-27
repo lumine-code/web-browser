@@ -29,6 +29,7 @@
                 { "label": "Find…", "command": "web-browser:find" },
                 { "label": "Add or Remove Favorite", "command": "web-browser:toggle-favorite" },
                 { "label": "Open Externally", "command": "web-browser:open-external" },
+                { "label": "Open in New Window", "command": "web-browser:open-in-new-window" },
                 { "label": "Print…", "command": "web-browser:print" },
                 { "label": "Zoom In", "command": "web-browser:zoom-in" },
                 { "label": "Zoom Out", "command": "web-browser:zoom-out" },
@@ -46,6 +47,7 @@
               "label": "Data",
               "submenu": [
                 { "label": "History…", "command": "web-browser:show-history" },
+                { "label": "Clear History…", "command": "web-browser:clear-history" },
                 { "label": "Site Permissions…", "command": "web-browser:show-site-permissions" }
               ]
             },

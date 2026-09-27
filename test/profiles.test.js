@@ -17,6 +17,12 @@ test("workspace profiles are stable across path order", () => {
   assert.match(profileFor("workspace", { projectPaths: ["C:/a"] }).id, /^web-browser\/workspace\//);
 });
 
+test("workspace profile keys preserve case on case-sensitive platforms", () => {
+  const upper = workspaceKey(["/Project"], { platform: "linux" });
+  const lower = workspaceKey(["/project"], { platform: "linux" });
+  assert.notEqual(upper, lower);
+});
+
 test("private profiles are unique per tab and cannot persist decisions", () => {
   const profile = profileFor("ephemeral", { tabId: "one" });
   assert.equal(profile.persistent, false);
@@ -24,9 +30,9 @@ test("private profiles are unique per tab and cannot persist decisions", () => {
   assert.equal(canPersistSiteDecision(profile), false);
 });
 
-test("workspace storage falls back to a private tab without project roots", () => {
+test("workspace storage hashes an empty project-root set persistently", () => {
   const profile = profileFor("workspace", { tabId: "empty", projectPaths: [] });
-  assert.equal(profile.id, "web-browser/tab/empty");
-  assert.equal(profile.persistent, false);
-  assert.equal(profile.scope, "ephemeral");
+  assert.match(profile.id, /^web-browser\/workspace\/[0-9a-f]{24}$/);
+  assert.equal(profile.persistent, true);
+  assert.equal(profile.scope, "workspace");
 });

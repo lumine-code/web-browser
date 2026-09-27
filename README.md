@@ -15,7 +15,7 @@ Browse the web without leaving the editor.
 
 ## Commands
 
-Use `Alt+Y` to focus the last browser tab or return focus to the previous editor. `Ctrl+L` focuses the address bar, `Ctrl+T` opens a tab, `Ctrl+F` searches the page and `F12` opens DevTools. On macOS, use Command in place of Ctrl for the bindings written as `cmdorctrl` in the package keymap.
+Use `Alt+W` to focus the last browser tab or return focus to the previous editor. `Ctrl+L` focuses the address bar, `Ctrl+T` opens a tab, `Ctrl+F` searches the page and `F12` opens DevTools. On macOS, use Command in place of Ctrl for the bindings written as `cmdorctrl` in the package keymap.
 
 The complete command surface is available under `Packages > Web Browser`.
 

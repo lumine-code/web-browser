@@ -1,6 +1,6 @@
 {
   "lumine-workspace": {
-    "alt-y": "web-browser:toggle-focus"
+    "alt-w": "web-browser:toggle-focus"
   },
   ".web-browser": {
     "cmdorctrl-l": "web-browser:focus-address",

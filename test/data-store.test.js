@@ -23,6 +23,27 @@ test("history is scoped and pruned", async () => {
   data.close();
 });
 
+test("recent history can be limited to explicit address navigations", async () => {
+  const data = store();
+  const profile = { id: "global", persistent: true };
+  await data.addHistory(profile, { url: "https://typed.test", timestamp: 1, explicit: true });
+  await data.addHistory(profile, { url: "https://linked.test", timestamp: 2, explicit: false });
+  assert.deepEqual(
+    (await data.history(profile, { explicitOnly: true })).map(({ url }) => url),
+    ["https://typed.test"],
+  );
+  data.close();
+});
+
+test("individual history entries can be removed", async () => {
+  const data = store();
+  const profile = { id: "global", persistent: true };
+  const entry = await data.addHistory(profile, { url: "https://remove.test" });
+  await data.removeHistory(entry.id, profile.id);
+  assert.deepEqual(await data.history(profile), []);
+  data.close();
+});
+
 test("ephemeral profiles do not record history or permissions", async () => {
   const data = store();
   const profile = { id: "private", persistent: false };
@@ -42,4 +63,46 @@ test("favorites and permissions can be added and removed", async () => {
   await data.removePermission(profile, "https://one.test", "media");
   assert.equal(await data.permission(profile, "https://one.test", "media"), null);
   data.close();
+});
+
+test("broadcasts committed changes to other windows", async () => {
+  class FakeBroadcastChannel {
+    static channels = new Map();
+
+    constructor(name) {
+      this.name = name;
+      let peers = FakeBroadcastChannel.channels.get(name);
+      if (!peers) FakeBroadcastChannel.channels.set(name, (peers = new Set()));
+      peers.add(this);
+    }
+
+    postMessage(data) {
+      for (const peer of FakeBroadcastChannel.channels.get(this.name) || []) {
+        if (peer !== this) peer.onmessage?.({ data });
+      }
+    }
+
+    close() {
+      FakeBroadcastChannel.channels.get(this.name)?.delete(this);
+    }
+  }
+
+  const backend = new MemoryBackend();
+  const first = new BrowserDataStore({ backend, BroadcastChannel: FakeBroadcastChannel });
+  const second = new BrowserDataStore({ backend, BroadcastChannel: FakeBroadcastChannel });
+  const changes = [];
+  second.onDidChange((change) => changes.push(change));
+
+  await first.setFavorite("workspace", "https://one.test", true);
+
+  assert.deepEqual(changes, [
+    {
+      kind: "favorites",
+      workspaceId: "workspace",
+      url: "https://one.test",
+      favorite: true,
+    },
+  ]);
+  first.close();
+  second.close();
 });
