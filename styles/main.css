@@ -245,10 +245,6 @@
   margin-top: 8px;
 }
 
-.web-browser-title-bar-button[hidden] {
-  display: none;
-}
-
 @keyframes web-browser-spin {
   to {
     transform: rotate(1turn);

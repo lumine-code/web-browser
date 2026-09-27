@@ -57,11 +57,6 @@
     }
   },
   "consumedServices": {
-    "title-bar": {
-      "versions": {
-        "^1.0.0": "consumeTitleBar"
-      }
-    },
     "tree-view.selection": {
       "versions": {
         "^1.0.0": "consumeTreeViewSelection"
@@ -129,16 +124,6 @@
       "description": "Reload an open local web document after its file changes.",
       "type": "boolean",
       "default": true
-    },
-    "showInTitleBar": {
-      "title": "Title Bar Button",
-      "type": "string",
-      "enum": [
-        "always",
-        "when-open",
-        "never"
-      ],
-      "default": "when-open"
     }
   },
   "devDependencies": {

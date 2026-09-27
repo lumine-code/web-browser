@@ -28,6 +28,13 @@ describe("web-browser package assets", () => {
     expect(keymap["lumine-workspace"]["alt-w"]).toBe("web-browser:toggle-focus");
   });
 
+  it("does not contribute a title-bar item or setting", () => {
+    const main = fs.readFileSync(path.join(root, "lib", "main.js"), "utf8");
+    expect(manifest.consumedServices["title-bar"]).toBeUndefined();
+    expect(manifest.configSchema.showInTitleBar).toBeUndefined();
+    expect(main).not.toContain("consumeTitleBar");
+  });
+
   it("does not waste keywords already present in the package name", () => {
     expect(manifest.keywords).not.toContain("web");
     expect(manifest.keywords).not.toContain("browser");
