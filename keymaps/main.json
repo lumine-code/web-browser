@@ -22,5 +22,29 @@
     "f12": "web-browser:open-devtools",
     "cmdorctrl-shift-i": "web-browser:open-devtools",
     "escape": "web-browser:stop-or-dismiss"
+  },
+  ".web-browser-address-box lumine-text-editor[mini]": {
+    "enter": "core:confirm",
+    "escape": "core:cancel",
+    "up": "core:move-up",
+    "down": "core:move-down",
+    "cmdorctrl-l": "web-browser:focus-address",
+    "cmdorctrl-t": "web-browser:new-tab",
+    "cmdorctrl-f": "web-browser:find",
+    "cmdorctrl-d": "web-browser:toggle-favorite",
+    "cmdorctrl-h": "web-browser:show-history",
+    "cmdorctrl-r": "web-browser:reload",
+    "cmdorctrl-shift-r": "web-browser:reload-ignoring-cache",
+    "f5": "web-browser:reload",
+    "alt-left": "web-browser:back",
+    "alt-right": "web-browser:forward",
+    "cmdorctrl-+": "web-browser:zoom-in",
+    "cmdorctrl-=": "web-browser:zoom-in",
+    "cmdorctrl--": "web-browser:zoom-out",
+    "cmdorctrl-_": "web-browser:zoom-out",
+    "cmdorctrl-0": "web-browser:zoom-reset",
+    "cmdorctrl-p": "web-browser:print",
+    "f12": "web-browser:open-devtools",
+    "cmdorctrl-shift-i": "web-browser:open-devtools"
   }
 }

@@ -103,6 +103,7 @@ describe("web-browser", () => {
       package: {
         syncFavorite: async () => {},
         cleanUserAgent: () => "Lumine Test",
+        addressSuggestions: async () => [],
       },
       url: "https://popup.example/",
       adoptedSurface: true,
@@ -118,7 +119,27 @@ describe("web-browser", () => {
     expect(surface.loadURL).not.toHaveBeenCalled();
     expect(surface.setVisible).toHaveBeenCalledWith(true);
     expect(view.placeholder.hidden).toBe(true);
+    const addressEditor = view.addressEditor;
+    expect(addressEditor.isMini()).toBe(true);
+    expect(view.addressEditorElement.matches("lumine-text-editor[mini].web-browser-address")).toBe(
+      true,
+    );
+    expect(addressEditor.getPlaceholderText()).toBe("Search or enter address");
+    expect(lumine.textEditors.roleFor(addressEditor)).toBe("input");
+    const pickerRow = document.createElement("button");
+    const picked = jasmine.createSpy("picked");
+    view.pickerEntries = [{ row: pickerRow, run: picked }];
+    view.picker.hidden = false;
+    lumine.commands.dispatch(view.addressEditorElement, "core:move-down");
+    expect(view.pickerIndex).toBe(0);
+    lumine.commands.dispatch(view.addressEditorElement, "core:confirm");
+    expect(picked).toHaveBeenCalled();
+    addressEditor.setText("https://typed.example/");
+    view.focusAddress();
+    expect(addressEditor.getSelectedText()).toBe("https://typed.example/");
     view.destroy();
+    expect(addressEditor.isDestroyed()).toBe(true);
+    expect(lumine.textEditors.roleFor(addressEditor)).toBeNull();
   });
 
   it("uses configured storage for workspace-opened URLs", () => {

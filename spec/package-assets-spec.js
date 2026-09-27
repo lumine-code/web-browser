@@ -26,6 +26,9 @@ describe("web-browser package assets", () => {
   it("owns Alt+W as its reveal-tier binding", () => {
     const keymap = require(path.join(root, "keymaps", "main.json"));
     expect(keymap["lumine-workspace"]["alt-w"]).toBe("web-browser:toggle-focus");
+    const address = keymap[".web-browser-address-box lumine-text-editor[mini]"];
+    expect(address.escape).toBe("core:cancel");
+    expect(address["cmdorctrl-d"]).toBe("web-browser:toggle-favorite");
   });
 
   it("does not contribute a title-bar item or setting", () => {
@@ -33,6 +36,16 @@ describe("web-browser package assets", () => {
     expect(manifest.consumedServices["title-bar"]).toBeUndefined();
     expect(manifest.configSchema.showInTitleBar).toBeUndefined();
     expect(main).not.toContain("consumeTitleBar");
+  });
+
+  it("implements the address bar as a registered mini text editor", () => {
+    const view = fs.readFileSync(path.join(root, "lib", "browser-view.js"), "utf8");
+    expect(view).toContain("buildTextEditor({");
+    expect(view).toContain("mini: true");
+    expect(view).toContain('lumine.textEditors.add(this.addressEditor, { role: "input" })');
+    expect(view).not.toContain(
+      'element("input", "input-text native-key-bindings web-browser-address")',
+    );
   });
 
   it("does not waste keywords already present in the package name", () => {

@@ -43,6 +43,7 @@
 .web-browser-address {
   box-sizing: border-box;
   width: 100%;
+  min-width: 0;
   padding-right: 30px;
 }
 
