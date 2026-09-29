@@ -2,6 +2,9 @@
 
 Browse the web without leaving the editor.
 
+> [!WARNING]
+> **This package is deprecated.** It is no longer distributed through the Lumine package catalog or maintained. The supporting WebContentsView API has also been removed from Lumine core. This repository is archived and no longer receives updates.
+
 `web-browser` opens real Chromium pages as ordinary Lumine pane items. Tabs can be split, copied and restored while cookies, history, favorites and site permissions follow the selected storage profile.
 
 ## Features
